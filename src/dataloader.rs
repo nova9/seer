@@ -15,3 +15,17 @@ impl DataLoader {
         }
     }
 }
+
+impl Iterator for DataLoader {
+    type Item = (Vec<u32>, Vec<u32>);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.pos >= self.dataset.len() {
+            return None;
+        }
+
+        let batch = self.dataset.get(self.pos);
+        self.pos += self.stride;
+        Some(batch)
+    }
+}
