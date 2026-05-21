@@ -36,7 +36,7 @@
 **Learn:** The core of transformers, matrix ops in Candle, masking
 
 - [x] 4.1 Scaled dot-product attention
-- [ ] 4.2 Causal (autoregressive) mask
+- [x] 4.2 Causal (autoregressive) mask
 - [ ] 4.3 Multi-head attention (split heads, concat, project)
 
 ---
