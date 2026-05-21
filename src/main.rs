@@ -1,6 +1,8 @@
+mod attention;
 mod dataloader;
 mod dataset;
 mod embedding;
+
 use candle_core::{DType, Device, Tensor};
 use candle_nn::{VarBuilder, VarMap};
 use tokenizers::Tokenizer;
@@ -22,6 +24,9 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let max_seq_len = 1024;
     let pos_embed = embedding::LearnedPosEmbedding::new(max_seq_len, embed_dim, vb.pp("pos_emb"))?;
 
+    // create the attention layer
+    let attn = attention::ScaledDotProductAttention::new(embed_dim, vb.pp("attn"))?;
+
     // data
     let seq_len = 256;
     let dataset = dataset::Dataset::new("shakespeare.txt", &tokenizer, seq_len)?;
@@ -36,6 +41,11 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         let pos_out = pos_embed.forward(seq_len, &device)?;
 
         let combined = (tok_out + pos_out)?;
+
+        let attn_out = attn.forward(&combined)?;
+
+        println!("attn output shape: {:?}", attn_out.shape());
+
 
         println!("output shape: {:?}", combined.shape()); // [seq_len, embed_dim]
 

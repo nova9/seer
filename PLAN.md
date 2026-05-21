@@ -35,7 +35,7 @@
 ## Phase 4 — Attention Mechanism
 **Learn:** The core of transformers, matrix ops in Candle, masking
 
-- [ ] 4.1 Scaled dot-product attention
+- [x] 4.1 Scaled dot-product attention
 - [ ] 4.2 Causal (autoregressive) mask
 - [ ] 4.3 Multi-head attention (split heads, concat, project)
 
