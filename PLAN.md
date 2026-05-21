@@ -19,16 +19,16 @@
 
 - [x] 2.1 Load a BPE tokenizer (`tokenizer.json`)
 - [x] 2.2 Build a `Dataset` struct that reads a text file and yields token batches
-- [ ] 2.3 Implement a sliding-window `DataLoader` iterator
+- [x] 2.3 Implement a sliding-window `DataLoader` iterator
 
 ---
 
 ## Phase 3 — Embedding Layer
 **Learn:** `candle_nn`, `nn::Embedding`, gradient flow basics
 
-- [ ] 3.1 Token embedding lookup table
-- [ ] 3.2 Positional encoding (learned vs sinusoidal)
-- [ ] 3.3 Combine token + position embeddings
+- [x] 3.1 Token embedding lookup table
+- [x] 3.2 Positional encoding (learned vs sinusoidal)
+- [x] 3.3 Combine token + position embeddings
 
 ---
 
