@@ -1,7 +1,5 @@
-use std::thread::Scope;
-
 use candle_core::{Result, Tensor};
-use candle_nn::{Linear, Module, VarBuilder, linear_no_bias, seq};
+use candle_nn::{Linear, Module, VarBuilder, linear_no_bias};
 
 pub struct ScaledDotProductAttention {
     w_q: Linear,
@@ -33,11 +31,12 @@ impl ScaledDotProductAttention {
         let scores = q.matmul(&k.t()?)?;
         let scores = (scores / self.scale)?;
 
-        let seq_len = x.dim(0)?;
-        let mask = casual_mask(seq_len, x.device());
-        let scores = (scores + mask)?;
+        let seq_len = x.dim(1)?;
+        let mask = casual_mask(seq_len, x.device())?;
 
-        let weights = candle_nn::ops::softmax(&scores, 1)?;
+        let scores = scores.broadcast_add(&mask.unsqueeze(0)?)?;
+
+        let weights = candle_nn::ops::softmax(&scores, 2)?;
 
         weights.matmul(&v)
     }

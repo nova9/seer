@@ -30,22 +30,30 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     // data
     let seq_len = 256;
     let dataset = dataset::Dataset::new("shakespeare.txt", &tokenizer, seq_len)?;
-    let dataloader = dataloader::DataLoader::new(dataset, 2);
+
+    let batch_size = 4;
+    let dataloader = dataloader::DataLoader::new(dataset, 2, batch_size);
 
     for (inputs, targets) in dataloader.take(1) {
-        let input_tensor = Tensor::new(inputs.as_slice(), &device)?;
-        println!("{:?}", input_tensor.shape());
+        let input_tensor = Tensor::from_vec(inputs, (batch_size, seq_len), &device)?;
+
+        println!("input_tenser: {:?}", input_tensor.shape());
         let _target_tensor = Tensor::new(targets.as_slice(), &device)?;
 
         let tok_out = token_embed.forward(&input_tensor)?;
-        let pos_out = pos_embed.forward(seq_len, &device)?;
+        println!("tok_out: {:?}", tok_out.shape());
 
-        let combined = (tok_out + pos_out)?;
+        let pos_out = pos_embed.forward(seq_len, &device)?;
+        println!("pos_out: {:?}", pos_out.shape());
+
+        let pos_out_unsqueezed = pos_out.unsqueeze(0)?;
+        println!("pos_out_unsqueezed: {:?}", pos_out_unsqueezed.shape());
+
+        let combined = tok_out.broadcast_add(&pos_out.unsqueeze(0)?)?;
 
         let attn_out = attn.forward(&combined)?;
 
         println!("attn output shape: {:?}", attn_out.shape());
-
 
         println!("output shape: {:?}", combined.shape()); // [seq_len, embed_dim]
 
