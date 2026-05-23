@@ -25,7 +25,8 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let pos_embed = embedding::LearnedPosEmbedding::new(max_seq_len, embed_dim, vb.pp("pos_emb"))?;
 
     // create the attention layer
-    let attn = attention::ScaledDotProductAttention::new(embed_dim, vb.pp("attn"))?;
+    let num_heads = 4;
+    let attn = attention::MultiHeadAttention::new(embed_dim, num_heads, vb.pp("attn"))?;
 
     // data
     let seq_len = 256;
@@ -36,8 +37,8 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
     for (inputs, targets) in dataloader.take(1) {
         let input_tensor = Tensor::from_vec(inputs, (batch_size, seq_len), &device)?;
-
         println!("input_tenser: {:?}", input_tensor.shape());
+
         let _target_tensor = Tensor::new(targets.as_slice(), &device)?;
 
         let tok_out = token_embed.forward(&input_tensor)?;
@@ -50,12 +51,10 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         println!("pos_out_unsqueezed: {:?}", pos_out_unsqueezed.shape());
 
         let combined = tok_out.broadcast_add(&pos_out.unsqueeze(0)?)?;
+        println!("combined shape: {:?}", combined.shape());
 
         let attn_out = attn.forward(&combined)?;
-
         println!("attn output shape: {:?}", attn_out.shape());
-
-        println!("output shape: {:?}", combined.shape()); // [seq_len, embed_dim]
 
         println!("")
     }

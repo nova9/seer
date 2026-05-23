@@ -37,7 +37,7 @@
 
 - [x] 4.1 Scaled dot-product attention
 - [x] 4.2 Causal (autoregressive) mask
-- [ ] 4.3 Multi-head attention (split heads, concat, project)
+- [x] 4.3 Multi-head attention (split heads, concat, project)
 
 ---
 
