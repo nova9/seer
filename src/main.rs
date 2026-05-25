@@ -71,7 +71,7 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         let seq_len = 256;
         println!("Tokenizing dataset (this may take a moment)...");
         let dataset = dataset::Dataset::new("shakespeare.txt", &tokenizer, seq_len)?;
-        let batch_size = 64;
+        let batch_size = 16;
         println!("Dataset ready: {} samples", dataset.len());
 
         let n_epochs = 3;
