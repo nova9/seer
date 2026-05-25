@@ -27,7 +27,7 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let vb = VarBuilder::from_varmap(&varmap, DType::F32, &device);
 
     // create the token embedding layer
-    let embed_dim = 256;
+    let embed_dim = 512;
     let vocab_size = tokenizer.get_vocab_size(true);
     println!("Vocab size: {vocab_size}");
     let token_embed = embedding::TokenEmbedding::new(vocab_size, embed_dim, vb.pp("token_emb"))?;
@@ -38,7 +38,7 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
     // create GPT model (stack of N transformer blocks)
     let num_heads = 8;
-    let n_layers = 6;
+    let n_layers = 8;
     println!("Building model ({n_layers} layers, {embed_dim} dim, {num_heads} heads)...");
     let model = gpt::Gpt::new(n_layers, embed_dim, num_heads, vocab_size, vb.pp("gpt"))?;
 
@@ -71,7 +71,7 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         let seq_len = 256;
         println!("Tokenizing dataset (this may take a moment)...");
         let dataset = dataset::Dataset::new("shakespeare.txt", &tokenizer, seq_len)?;
-        let batch_size = 32;
+        let batch_size = 64;
         println!("Dataset ready: {} samples", dataset.len());
 
         let n_epochs = 3;
@@ -80,7 +80,7 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
             let resume_step = if epoch == start_epoch { start_step } else { 0 };
             println!("--- Epoch {epoch} (starting from step {resume_step}) ---");
             let dataloader =
-                dataloader::DataLoader::from_step(dataset.clone(), 2, batch_size, resume_step);
+                dataloader::DataLoader::from_step(dataset.clone(), seq_len, batch_size, resume_step);
             for (step, (inputs, targets)) in
                 dataloader.enumerate().map(|(s, b)| (s + resume_step, b))
             {
