@@ -44,9 +44,9 @@
 ## Phase 5 — Transformer Block
 **Learn:** Layer norm, MLP/FFN, residual connections, Rust structs as modules
 
-- [ ] 5.1 `LayerNorm` wrapper
-- [ ] 5.2 Feed-forward network (MLP)
-- [ ] 5.3 Full `TransformerBlock` struct implementing `candle_nn::Module`
+- [x] 5.1 `LayerNorm` wrapper
+- [x] 5.2 Feed-forward network (MLP)
+- [x] 5.3 Full `TransformerBlock` struct implementing `candle_nn::Module`
 
 ---
 

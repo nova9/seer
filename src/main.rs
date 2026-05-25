@@ -2,6 +2,9 @@ mod attention;
 mod dataloader;
 mod dataset;
 mod embedding;
+mod layer_norm;
+mod mlp;
+mod transformer_block;
 
 use candle_core::{DType, Device, Tensor};
 use candle_nn::{VarBuilder, VarMap};
@@ -24,9 +27,9 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let max_seq_len = 1024;
     let pos_embed = embedding::LearnedPosEmbedding::new(max_seq_len, embed_dim, vb.pp("pos_emb"))?;
 
-    // create the attention layer
+    // create transformer block
     let num_heads = 4;
-    let attn = attention::MultiHeadAttention::new(embed_dim, num_heads, vb.pp("attn"))?;
+    let block = transformer_block::TransformerBlock::new(embed_dim, num_heads, vb.pp("block"))?;
 
     // data
     let seq_len = 256;
@@ -53,8 +56,8 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         let combined = tok_out.broadcast_add(&pos_out.unsqueeze(0)?)?;
         println!("combined shape: {:?}", combined.shape());
 
-        let attn_out = attn.forward(&combined)?;
-        println!("attn output shape: {:?}", attn_out.shape());
+        let block_out = block.forward(&combined)?;
+        println!("block output shape: {:?}", block_out.shape());
 
         println!("")
     }
