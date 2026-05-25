@@ -10,6 +10,8 @@ mod transformer_block;
 use candle_core::{DType, Device, Tensor};
 use candle_nn::optim::{AdamW, Optimizer};
 use candle_nn::{VarBuilder, VarMap};
+use std::fs;
+use std::path::Path;
 use tokenizers::Tokenizer;
 
 fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
@@ -18,7 +20,7 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
     // set up the parameter store
     let device = Device::new_metal(0)?;
-    let varmap = VarMap::new();
+    let mut varmap = VarMap::new();
     let vb = VarBuilder::from_varmap(&varmap, DType::F32, &device);
 
     // create the token embedding layer
@@ -37,6 +39,21 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     println!("Building model ({n_layers} layers, {embed_dim} dim, {num_heads} heads)...");
     let model = gpt::Gpt::new(n_layers, embed_dim, num_heads, vocab_size, vb.pp("gpt"))?;
 
+    let checkpoint = "checkpoint.safetensors";
+    let progress_file = "checkpoint.progress";
+    let (start_epoch, start_step) = if Path::new(checkpoint).exists() {
+        let progress = fs::read_to_string(progress_file).unwrap_or("0,0".to_string());
+        let mut parts = progress.trim().splitn(2, ',');
+        let epoch = parts.next().and_then(|s| s.parse().ok()).unwrap_or(0);
+        let step = parts.next().and_then(|s| s.parse().ok()).unwrap_or(0);
+        println!("Resuming from {checkpoint} (epoch {epoch}, step {step})...");
+        varmap.load(checkpoint)?;
+        (epoch, step)
+    } else {
+        println!("No checkpoint found, starting fresh.");
+        (0, 0)
+    };
+
     let mut optimizer = AdamW::new_lr(varmap.all_vars(), 3e-4)?;
 
     // data
@@ -48,10 +65,11 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
     let n_epochs = 3;
 
-    for epoch in 0..n_epochs {
-        println!("--- Epoch {epoch} ---");
-        let dataloader = dataloader::DataLoader::new(dataset.clone(), 2, batch_size);
-        for (step, (inputs, targets)) in dataloader.enumerate() {
+    for epoch in start_epoch..n_epochs {
+        let resume_step = if epoch == start_epoch { start_step } else { 0 };
+        println!("--- Epoch {epoch} (starting from step {resume_step}) ---");
+        let dataloader = dataloader::DataLoader::from_step(dataset.clone(), 2, batch_size, resume_step);
+        for (step, (inputs, targets)) in dataloader.enumerate().map(|(s, b)| (s + resume_step, b)) {
             let input_tensor = Tensor::from_vec(inputs, (batch_size, seq_len), &device)?;
 
             let tok_out = token_embed.forward(&input_tensor)?;
@@ -71,11 +89,13 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
             optimizer.backward_step(&loss)?;
 
-            if step % 1 == 0 {
-                println!(
-                    "epoch {epoch} step {step} loss: {:.4}",
-                    loss.to_scalar::<f32>()?
-                );
+            println!(
+                "epoch {epoch} step {step} loss: {:.4}",
+                loss.to_scalar::<f32>()?
+            );
+            if step % 10 == 0 {
+                varmap.save(checkpoint)?;
+                fs::write(progress_file, format!("{epoch},{step}"))?;
             }
         }
     }

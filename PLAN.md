@@ -62,9 +62,9 @@
 ## Phase 7 — Training Loop
 **Learn:** Optimizers, backprop in Candle, Rust error handling at scale
 
-- [ ] 7.1 AdamW optimizer via `candle_nn::optim`
-- [ ] 7.2 Forward pass → loss → backward → step
-- [ ] 7.3 Loss logging, checkpointing to safetensors
+- [x] 7.1 AdamW optimizer via `candle_nn::optim`
+- [x] 7.2 Forward pass → loss → backward → step
+- [x] 7.3 Loss logging, checkpointing to safetensors
 
 ---
 

@@ -9,9 +9,13 @@ pub struct DataLoader {
 
 impl DataLoader {
     pub fn new(dataset: Dataset, stride: usize, batch_size: usize) -> Self {
+        Self::from_step(dataset, stride, batch_size, 0)
+    }
+
+    pub fn from_step(dataset: Dataset, stride: usize, batch_size: usize, start_step: usize) -> Self {
         Self {
             dataset,
-            pos: 0,
+            pos: start_step * batch_size * stride,
             stride,
             batch_size,
         }
