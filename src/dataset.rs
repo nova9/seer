@@ -1,6 +1,7 @@
 use std::fs;
 use tokenizers::Tokenizer;
 
+#[derive(Clone)]
 pub struct Dataset {
     tokens: Vec<u32>,
     seq_len: usize,
