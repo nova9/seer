@@ -79,8 +79,11 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         for epoch in start_epoch..n_epochs {
             let resume_step = if epoch == start_epoch { start_step } else { 0 };
             println!("--- Epoch {epoch} (starting from step {resume_step}) ---");
-            let dataloader = dataloader::DataLoader::from_step(dataset.clone(), 2, batch_size, resume_step);
-            for (step, (inputs, targets)) in dataloader.enumerate().map(|(s, b)| (s + resume_step, b)) {
+            let dataloader =
+                dataloader::DataLoader::from_step(dataset.clone(), 2, batch_size, resume_step);
+            for (step, (inputs, targets)) in
+                dataloader.enumerate().map(|(s, b)| (s + resume_step, b))
+            {
                 let input_tensor = Tensor::from_vec(inputs, (batch_size, seq_len), &device)?;
 
                 let tok_out = token_embed.forward(&input_tensor)?;
@@ -121,6 +124,8 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         .get_ids()
         .to_vec();
 
+    let top_k = 40;
+    let temperature = 0.8;
     let generated = generate::generate(
         prompt_tokens,
         100, // generate 100 new tokens
@@ -128,6 +133,8 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         &pos_embed,
         &model,
         &device,
+        temperature,
+        top_k,
     )?;
 
     let output = tokenizer

@@ -71,8 +71,8 @@
 ## Phase 8 — Text Generation
 **Learn:** Autoregressive inference, temperature, top-k sampling
 
-- [ ] 8.1 Greedy decoding
-- [ ] 8.2 Temperature + top-k sampling
+- [x] 8.1 Greedy decoding
+- [x] 8.2 Temperature + top-k sampling
 - [ ] 8.3 KV-cache for efficient generation (stretch goal)
 
 ---

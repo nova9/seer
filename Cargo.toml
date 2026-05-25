@@ -7,3 +7,4 @@ edition = "2024"
 candle-core = { git = "https://github.com/huggingface/candle", features = ["metal"] }
 candle-nn   = { git = "https://github.com/huggingface/candle", features = ["metal"] }
 tokenizers = "0.23.1"
+rand = "0.8"
