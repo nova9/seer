@@ -22,7 +22,7 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let tokenizer = Tokenizer::from_file("tokenizer.json")?;
 
     // set up the parameter store
-    let device = Device::new_metal(0)?;
+    let device = Device::new_cuda(0)?;
     let mut varmap = VarMap::new();
     let vb = VarBuilder::from_varmap(&varmap, DType::F32, &device);
 

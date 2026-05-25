@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-candle-core = { git = "https://github.com/huggingface/candle", features = ["metal"] }
-candle-nn   = { git = "https://github.com/huggingface/candle", features = ["metal"] }
+candle-core = { git = "https://github.com/huggingface/candle", features = ["cuda"] }
+candle-nn   = { git = "https://github.com/huggingface/candle", features = ["cuda"] }
 tokenizers = "0.23.1"
 rand = "0.8"
