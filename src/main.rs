@@ -74,13 +74,13 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         let batch_size = 16;
         println!("Dataset ready: {} samples", dataset.len());
 
-        let n_epochs = 3;
+        let n_epochs = 10;
 
         for epoch in start_epoch..n_epochs {
             let resume_step = if epoch == start_epoch { start_step } else { 0 };
             println!("--- Epoch {epoch} (starting from step {resume_step}) ---");
             let dataloader =
-                dataloader::DataLoader::from_step(dataset.clone(), seq_len, batch_size, resume_step);
+                dataloader::DataLoader::from_step(dataset.clone(), 1, batch_size, resume_step);
             for (step, (inputs, targets)) in
                 dataloader.enumerate().map(|(s, b)| (s + resume_step, b))
             {
