@@ -2,6 +2,7 @@ mod attention;
 mod dataloader;
 mod dataset;
 mod embedding;
+mod gpt;
 mod layer_norm;
 mod mlp;
 mod transformer_block;
@@ -27,9 +28,10 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let max_seq_len = 1024;
     let pos_embed = embedding::LearnedPosEmbedding::new(max_seq_len, embed_dim, vb.pp("pos_emb"))?;
 
-    // create transformer block
+    // create GPT model (stack of N transformer blocks)
     let num_heads = 4;
-    let block = transformer_block::TransformerBlock::new(embed_dim, num_heads, vb.pp("block"))?;
+    let n_layers = 4;
+    let model = gpt::Gpt::new(n_layers, embed_dim, num_heads, vocab_size, vb.pp("gpt"))?;
 
     // data
     let seq_len = 256;
@@ -41,8 +43,6 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     for (inputs, targets) in dataloader.take(1) {
         let input_tensor = Tensor::from_vec(inputs, (batch_size, seq_len), &device)?;
         println!("input_tenser: {:?}", input_tensor.shape());
-
-        let _target_tensor = Tensor::new(targets.as_slice(), &device)?;
 
         let tok_out = token_embed.forward(&input_tensor)?;
         println!("tok_out: {:?}", tok_out.shape());
@@ -56,8 +56,17 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         let combined = tok_out.broadcast_add(&pos_out.unsqueeze(0)?)?;
         println!("combined shape: {:?}", combined.shape());
 
-        let block_out = block.forward(&combined)?;
-        println!("block output shape: {:?}", block_out.shape());
+        let gpt_out = model.forward(&combined)?;
+        println!("gpt output shape: {:?}", gpt_out.shape());
+
+        let (_, _, vocab) = gpt_out.dims3()?;
+        let logits_flat = gpt_out.reshape((batch_size * seq_len, vocab))?;
+
+        let target_tensor = Tensor::from_vec(targets, (batch_size * seq_len,), &device)?;
+
+        let loss = candle_nn::loss::cross_entropy(&logits_flat, &target_tensor)?;
+        println!("loss: {:.4}", loss.to_scalar::<f32>()?);
+
 
         println!("")
     }

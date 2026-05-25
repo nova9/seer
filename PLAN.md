@@ -53,9 +53,9 @@
 ## Phase 6 — GPT Model
 **Learn:** Stacking blocks, language model head, parameter counting
 
-- [ ] 6.1 Stack N transformer blocks
-- [ ] 6.2 Final linear projection to vocabulary (`lm_head`)
-- [ ] 6.3 Cross-entropy loss for next-token prediction
+- [x] 6.1 Stack N transformer blocks
+- [x] 6.2 Final linear projection to vocabulary (`lm_head`)
+- [x] 6.3 Cross-entropy loss for next-token prediction
 
 ---
 
