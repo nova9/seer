@@ -4,6 +4,6 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-candle-core = { git = "https://github.com/huggingface/candle" }
-candle-nn   = { git = "https://github.com/huggingface/candle" }
+candle-core = { git = "https://github.com/huggingface/candle", features = ["metal"] }
+candle-nn   = { git = "https://github.com/huggingface/candle", features = ["metal"] }
 tokenizers = "0.23.1"
