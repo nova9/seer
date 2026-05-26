@@ -34,7 +34,7 @@ impl HyperParams {
                 num_heads: 16,
                 n_layers: 10,
                 seq_len: 1024,
-                batch_size: 16, // 4 score copies × 16 × 16 × 1024² × 4B × 10L ≈ 43 GB
+                batch_size: 8,
                 lr: 3e-4,
                 n_epochs: 10,
             },
