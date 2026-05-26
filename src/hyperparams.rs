@@ -38,6 +38,15 @@ impl HyperParams {
                 lr: 3e-4,
                 n_epochs: 10,
             },
+            "RTX_PRO_6000" => Self {
+                embed_dim: 768,
+                num_heads: 16,
+                n_layers: 12,
+                seq_len: 1536,
+                batch_size: 16,
+                lr: 3e-4,
+                n_epochs: 10,
+            },
             _ => {
                 eprintln!("Unknown preset '{name}', falling back to 'cpu'");
                 Self::preset("cpu")
