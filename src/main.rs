@@ -42,18 +42,18 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let vb = VarBuilder::from_varmap(&varmap, DType::F32, &device);
 
     // create the token embedding layer
-    let embed_dim = 512;
+    let embed_dim = 128;
     let vocab_size = tokenizer.get_vocab_size(true);
     println!("Vocab size: {vocab_size}");
     let token_embed = embedding::TokenEmbedding::new(vocab_size, embed_dim, vb.pp("token_emb"))?;
 
     // create the positional embedding layer
-    let max_seq_len = 1024;
+    let max_seq_len = 256;
     let pos_embed = embedding::LearnedPosEmbedding::new(max_seq_len, embed_dim, vb.pp("pos_emb"))?;
 
     // create GPT model (stack of N transformer blocks)
     let num_heads = 8;
-    let n_layers = 8;
+    let n_layers = 4;
     println!("Building model ({n_layers} layers, {embed_dim} dim, {num_heads} heads)...");
     let model = gpt::Gpt::new(n_layers, embed_dim, num_heads, vocab_size, vb.pp("gpt"))?;
 
@@ -81,12 +81,12 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
             (0, 0)
         };
 
-        let mut optimizer = AdamW::new_lr(varmap.all_vars(), 1e-4)?;
+        let mut optimizer = AdamW::new_lr(varmap.all_vars(), 3e-4)?;
 
         let seq_len = 256;
         println!("Tokenizing dataset (this may take a moment)...");
         let dataset = dataset::Dataset::new("shakespeare.txt", &tokenizer, seq_len)?;
-        let batch_size = 16;
+        let batch_size = 4;
         println!("Dataset ready: {} samples", dataset.len());
 
         let n_epochs = 10;
@@ -122,7 +122,7 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
                     "epoch {epoch} step {step} loss: {:.4}",
                     loss.to_scalar::<f32>()?
                 );
-                if step % 10 == 0 {
+                if step % 50 == 0 {
                     varmap.save(checkpoint)?;
                     fs::write(progress_file, format!("{epoch},{step}"))?;
                 }
