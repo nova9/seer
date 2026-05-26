@@ -15,6 +15,21 @@ use std::fs;
 use std::path::Path;
 use tokenizers::Tokenizer;
 
+fn get_device() -> candle_core::Result<Device> {
+    #[cfg(feature = "cuda")]
+    if let Ok(dev) = Device::new_cuda(0) {
+        println!("Using CUDA device");
+        return Ok(dev);
+    }
+    #[cfg(feature = "metal")]
+    if let Ok(dev) = Device::new_metal(0) {
+        println!("Using Metal device");
+        return Ok(dev);
+    }
+    println!("Using CPU device");
+    Ok(Device::Cpu)
+}
+
 fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let only_generate = std::env::args().any(|a| a == "--generate");
 
@@ -22,7 +37,7 @@ fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let tokenizer = Tokenizer::from_file("tokenizer.json")?;
 
     // set up the parameter store
-    let device = Device::new_cuda(0)?;
+    let device = get_device()?;
     let mut varmap = VarMap::new();
     let vb = VarBuilder::from_varmap(&varmap, DType::F32, &device);
 
