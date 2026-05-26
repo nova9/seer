@@ -29,6 +29,15 @@ impl HyperParams {
                 lr: 3e-4,
                 n_epochs: 10,
             },
+            "A40" => Self {
+                embed_dim: 384,
+                num_heads: 12,
+                n_layers: 8,
+                seq_len: 768,
+                batch_size: 48,
+                lr: 3e-4,
+                n_epochs: 10,
+            },
             "H100" => Self {
                 embed_dim: 512,
                 num_heads: 16,
