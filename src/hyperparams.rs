@@ -39,10 +39,10 @@ impl HyperParams {
                 n_epochs: 10,
             },
             "RTX_PRO_6000" => Self {
-                embed_dim: 1024,
+                embed_dim: 768,
                 num_heads: 16,
-                n_layers: 24,
-                seq_len: 2048,
+                n_layers: 12,
+                seq_len: 1536,
                 batch_size: 16,
                 lr: 3e-4,
                 n_epochs: 10,
