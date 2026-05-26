@@ -38,6 +38,15 @@ impl HyperParams {
                 lr: 3e-4,
                 n_epochs: 10,
             },
+            "A100_SXM" => Self {
+                embed_dim: 512,
+                num_heads: 16,
+                n_layers: 10,
+                seq_len: 1024,
+                batch_size: 56,
+                lr: 3e-4,
+                n_epochs: 10,
+            },
             "H100" => Self {
                 embed_dim: 512,
                 num_heads: 16,
